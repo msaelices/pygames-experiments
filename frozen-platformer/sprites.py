@@ -28,12 +28,21 @@ class Entity(Sprite):
         self.vel_y = 0
         self.in_ground = False
 
-    def apply_gravity(self):
+    def check_in_ground(self, level):
+        rect_below = self.rect.copy()
+        rect_below.y += 1  # check if a rect just below the player is colliding
+        for tile in level.tiles:
+            if rect_below.colliderect(tile.rect):
+                return True
+        return False
+
+    def apply_gravity(self, level):
+        self.in_ground = self.check_in_ground(level)
         if not self.in_ground:
             self.vel_y = min(self.vel_y + GRAVITY, TERMINAL_VELOCITY)
 
     def update_pos(self, level):
-        self.apply_gravity()
+        self.apply_gravity(level)
         self.rect.x += self.vel_x
         self.rect.y += self.vel_y
         tiles_hit = pygame.sprite.spritecollide(self, level.tiles, False)

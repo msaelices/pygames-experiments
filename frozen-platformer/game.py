@@ -31,11 +31,12 @@ class Game:
         self.done = False
         self.status = self.IDLE
 
-    def start(self):
+    def loop(self):
         while not self.is_done:
             self.handle_events()
             self.draw()
             self.clock.tick(FPS)
+        pygame.quit()
 
     def handle_events(self):
         for event in pygame.event.get():

@@ -64,11 +64,3 @@ class Level:
     def scroll_x(self, x):
         self.tiles.update(x)
 
-    def player_move_left(self):
-        self.player.move_left()
-
-    def player_move_right(self):
-        self.player.move_right()
-
-    def player_jump(self):
-        self.player.jump()

@@ -54,3 +54,6 @@ class Player(Entity):
 
     def jump(self):
         self.vel_y = -JUMP_SPEED
+
+    def stop(self):
+        self.vel_x = 0

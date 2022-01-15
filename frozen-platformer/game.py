@@ -52,11 +52,13 @@ class Game:
         keys = pygame.key.get_pressed()
         if self.is_started:
             if keys[LEFT]:
-                self.level.player_move_left()
+                self.level.player.move_left()
             elif keys[RIGHT]:
-                self.level.player_move_right()
+                self.level.player.move_right()
             elif keys[JUMP]:
-                self.level.player_jump()
+                self.level.player.jump()
+            else:
+                self.level.player.stop()
 
     def toggle_pause(self):
         self.status = self.STARTED if self.is_paused else self.PAUSED

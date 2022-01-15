@@ -5,13 +5,13 @@ from sprites import Enemy, Player, Tile
 
 levels_layout = [
     [
-        '                    ',
+        '   P                ',
         '   XXXX         XXXX',
         '          E         ',
         '         XXX        ',
         '                    ',
         'X       E           ',
-        'XP                  ',
+        'X                   ',
         'XX                 X',
         'XXXX     XX      EXX',
         'XXXX             XXX',
@@ -40,7 +40,6 @@ class Level:
 
     def setup(self, layout: list[str]):
         self.enemies = pygame.sprite.Group()
-        self.player = pygame.sprite.GroupSingle()
         self.tiles = pygame.sprite.Group()
         for y, row in enumerate(layout):
             for x, cell in enumerate(row):
@@ -49,17 +48,27 @@ class Level:
                     tile = Tile(TILE_SIZE, cell_pos)
                     self.tiles.add(tile)
                 elif cell == 'P':
-                    player = Player(cell_pos)
-                    self.player.add(player)
+                    self.player = Player(cell_pos)
                 elif cell == 'E':
                     enemy = Enemy(cell_pos)
                     self.enemies.add(enemy)
 
-
     def draw(self):
-        self.tiles.draw(self.surface)
         self.player.draw(self.surface)
+        self.tiles.draw(self.surface)
         self.enemies.draw(self.surface)
 
-    def move_x(self, x):
+    def update(self):
+        self.player.update_pos()
+
+    def scroll_x(self, x):
         self.tiles.update(x)
+
+    def player_move_left(self):
+        self.player.move_left()
+
+    def player_move_right(self):
+        self.player.move_right()
+
+    def player_jump(self):
+        self.player.jump()

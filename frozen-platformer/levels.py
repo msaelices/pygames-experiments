@@ -46,7 +46,8 @@ class Level:
                     tile = Tile(TILE_SIZE, (x * TILE_SIZE, y * TILE_SIZE))
                     self.tiles.add(tile)
 
-    def run(self):
-        # TODO: base this scroll on the player's input
-        self.tiles.update(-1)
+    def draw(self):
         self.tiles.draw(self.surface)
+
+    def move_x(self, x):
+        self.tiles.update(x)

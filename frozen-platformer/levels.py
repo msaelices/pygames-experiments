@@ -59,7 +59,7 @@ class Level:
         self.enemies.draw(self.surface)
 
     def update(self):
-        self.player.update_pos()
+        self.player.update_pos(self)
 
     def scroll_x(self, x):
         self.tiles.update(x)

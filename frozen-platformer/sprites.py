@@ -26,14 +26,31 @@ class Entity(Sprite):
         self.rect = self.image.get_rect(topleft=pos)
         self.vel_x = 0
         self.vel_y = 0
+        self.in_ground = False
 
     def apply_gravity(self):
-        self.vel_y = min(self.vel_y + GRAVITY, TERMINAL_VELOCITY)
+        if not self.in_ground:
+            self.vel_y = min(self.vel_y + GRAVITY, TERMINAL_VELOCITY)
 
-    def update_pos(self):
+    def update_pos(self, level):
         self.apply_gravity()
         self.rect.x += self.vel_x
         self.rect.y += self.vel_y
+        tiles_hit = pygame.sprite.spritecollide(self, level.tiles, False)
+        for tile in tiles_hit:
+            if self.vel_x > 0:
+                self.rect.right = tile.rect.left
+                self.vel_x = 0
+            elif self.vel_x < 0:
+                self.rect.left = tile.rect.right
+                self.vel_x = 0
+            if self.vel_y > 0:
+                self.rect.bottom = tile.rect.top
+                self.vel_y = 0
+                self.in_ground = True
+            elif self.vel_y < 0:
+                self.rect.top = tile.rect.bottom
+                self.vel_y = 0
 
     def draw(self, surface: Surface):
         surface.blit(self.image, self.rect)
@@ -54,6 +71,7 @@ class Player(Entity):
 
     def jump(self):
         self.vel_y = -JUMP_SPEED
+        self.in_ground = False
 
     def stop(self):
         self.vel_x = 0

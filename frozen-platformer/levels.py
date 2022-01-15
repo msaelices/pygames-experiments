@@ -1,5 +1,4 @@
 import pygame
-from typing import List
 
 from config import TILE_SIZE
 from sprites import Tile
@@ -39,7 +38,7 @@ class Level:
         level_layout = levels_layout[number]
         self.setup(level_layout)
 
-    def setup(self, layout: List[str]):
+    def setup(self, layout: list[str]):
         self.tiles = pygame.sprite.Group()
         for y, row in enumerate(layout):
             for x, cell in enumerate(row):

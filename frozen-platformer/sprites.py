@@ -5,7 +5,7 @@ from pygame import Surface
 from pygame.sprite import Sprite
 
 from config import (
-    JUMP_SPEED, SCREEN_HEIGHT, SCREEN_WIDTH, SPEED,
+    JUMP_SPEED, OVERLAP_THRESHOLD, SCREEN_HEIGHT, SCREEN_WIDTH, SPEED, TILE_SIZE
 )
 
 class Tile(Sprite):
@@ -53,18 +53,20 @@ class Entity(Sprite):
         self.rect.y += self.vel_y
         tiles_hit = pygame.sprite.spritecollide(self, level.tiles, False)
         for tile in tiles_hit:
-            if self.vel_x > 0:
-                self.rect.right = tile.rect.left
+            rect = self.rect
+            t_rect = tile.rect
+            if abs(rect.right - t_rect.left) < OVERLAP_THRESHOLD and self.vel_x > 0:
+                self.rect.right = t_rect.left
                 self.vel_x = 0
-            elif self.vel_x < 0:
-                self.rect.left = tile.rect.right
+            elif abs(rect.left - t_rect.right) < OVERLAP_THRESHOLD and self.vel_x < 0:
+                self.rect.left = t_rect.right
                 self.vel_x = 0
-            if self.vel_y > 0:
-                self.rect.bottom = tile.rect.top
+            if abs(rect.bottom - t_rect.top) < OVERLAP_THRESHOLD and self.vel_y > 0:
+                self.rect.bottom = t_rect.top
                 self.vel_y = 0
                 self.in_ground = True
-            elif self.vel_y < 0:
-                self.rect.top = tile.rect.bottom
+            elif abs(rect.top - t_rect.bottom) < OVERLAP_THRESHOLD and self.vel_y < 0:
+                self.rect.top = t_rect.bottom
                 self.vel_y = 0
 
     def draw(self, surface: Surface):
@@ -97,12 +99,12 @@ class SnowFlake(Entity):
 
 class Enemy(Entity):
     color = 'red'
-    size = (30, 60)
+    size = (TILE_SIZE // 2, TILE_SIZE)
 
 
 class Player(Entity):
     color = 'green'
-    size = (30, 60)
+    size = (TILE_SIZE // 2, TILE_SIZE)
 
     def move_left(self):
         self.vel_x = -SPEED

@@ -5,7 +5,7 @@ from pygame import Surface
 from pygame.sprite import Sprite
 
 from config import (
-    GRAVITY, JUMP_SPEED, SCREEN_HEIGHT, SCREEN_WIDTH, SPEED, TERMINAL_VELOCITY
+    JUMP_SPEED, SCREEN_HEIGHT, SCREEN_WIDTH, SPEED,
 )
 
 class Tile(Sprite):
@@ -21,6 +21,8 @@ class Tile(Sprite):
 
 
 class Entity(Sprite):
+    gravity = 2  # default gravity speed
+    terminal_velocity = 5  # default terminal velocity
 
     def __init__(self, pos: tuple):
         super().__init__()
@@ -43,7 +45,7 @@ class Entity(Sprite):
     def apply_gravity(self, level):
         self.in_ground = self.check_in_ground(level)
         if not self.in_ground:
-            self.vel_y = min(self.vel_y + GRAVITY, TERMINAL_VELOCITY)
+            self.vel_y = min(self.vel_y + self.gravity, self.terminal_velocity)
 
     def update(self, level):
         self.apply_gravity(level)
@@ -72,6 +74,8 @@ class Entity(Sprite):
 class SnowFlake(Entity):
     color = 'white'
     size = (10, 10)
+    gravity = 1
+    terminal_velocity = 2
 
     def __init__(self):
         super().__init__(self.get_random_pos(initial=True))

@@ -1,7 +1,7 @@
 import pygame
 
 from config import TILE_SIZE
-from sprites import Enemy, Player, Tile
+from sprites import Enemy, Player, SnowFlake, Tile
 
 levels_layout = [
     [
@@ -41,6 +41,8 @@ class Level:
     def setup(self, layout: list[str]):
         self.enemies = pygame.sprite.Group()
         self.tiles = pygame.sprite.Group()
+        self.snow_flakes = pygame.sprite.Group()
+
         for y, row in enumerate(layout):
             for x, cell in enumerate(row):
                 cell_pos = (x * TILE_SIZE, y * TILE_SIZE)
@@ -53,13 +55,18 @@ class Level:
                     enemy = Enemy(cell_pos)
                     self.enemies.add(enemy)
 
+        for _ in range(20):
+            self.snow_flakes.add(SnowFlake())
+
     def draw(self):
         self.player.draw(self.surface)
         self.tiles.draw(self.surface)
         self.enemies.draw(self.surface)
+        self.snow_flakes.draw(self.surface)
 
     def update(self):
-        self.player.update_pos(self)
+        self.player.update(self)
+        self.snow_flakes.update(self)
 
     def scroll_x(self, x):
         self.tiles.update(x)

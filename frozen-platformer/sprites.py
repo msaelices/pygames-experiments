@@ -1,8 +1,12 @@
+from random import randint
+
 import pygame
 from pygame import Surface
 from pygame.sprite import Sprite
 
-from config import GRAVITY, JUMP_SPEED, SPEED, TERMINAL_VELOCITY
+from config import (
+    GRAVITY, JUMP_SPEED, SCREEN_HEIGHT, SCREEN_WIDTH, SPEED, TERMINAL_VELOCITY
+)
 
 class Tile(Sprite):
 
@@ -21,7 +25,7 @@ class Entity(Sprite):
     def __init__(self, pos: tuple):
         super().__init__()
         # TODO: show real sprites
-        self.image = Surface((30, 60))
+        self.image = Surface(self.size)
         self.image.fill(self.color)
         self.rect = self.image.get_rect(topleft=pos)
         self.vel_x = 0
@@ -41,7 +45,7 @@ class Entity(Sprite):
         if not self.in_ground:
             self.vel_y = min(self.vel_y + GRAVITY, TERMINAL_VELOCITY)
 
-    def update_pos(self, level):
+    def update(self, level):
         self.apply_gravity(level)
         self.rect.x += self.vel_x
         self.rect.y += self.vel_y
@@ -65,12 +69,36 @@ class Entity(Sprite):
         surface.blit(self.image, self.rect)
 
 
+class SnowFlake(Entity):
+    color = 'white'
+    size = (10, 10)
+
+    def __init__(self):
+        super().__init__(self.get_random_pos(initial=True))
+
+    def get_random_pos(self, initial=False):
+        x = randint(0, SCREEN_WIDTH - 1)
+        y = randint(0, SCREEN_HEIGHT - 1) if initial else 0
+        return (x, y)
+
+    def check_in_ground(self, level):
+        return False  # never touch ground so it's always falling
+
+    def update(self, level):
+        self.apply_gravity(level)
+        self.rect.y += self.vel_y
+        if self.rect.y >= level.surface.get_height():
+            self.rect.topleft = self.get_random_pos()
+
+
 class Enemy(Entity):
     color = 'red'
+    size = (30, 60)
 
 
 class Player(Entity):
     color = 'green'
+    size = (30, 60)
 
     def move_left(self):
         self.vel_x = -SPEED

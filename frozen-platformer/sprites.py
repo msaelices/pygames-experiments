@@ -79,8 +79,9 @@ class Player(Entity):
         self.vel_x = SPEED
 
     def jump(self):
-        self.vel_y = -JUMP_SPEED
-        self.in_ground = False
+        if self.in_ground:
+            self.vel_y = -JUMP_SPEED
+            self.in_ground = False
 
     def stop(self):
         self.vel_x = 0

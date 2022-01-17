@@ -1,3 +1,5 @@
+from collections import defaultdict
+from os import path, walk
 from random import randint
 
 import pygame
@@ -5,7 +7,7 @@ from pygame import Surface
 from pygame.sprite import Sprite
 
 from config import (
-    JUMP_SPEED, OVERLAP_THRESHOLD, SCREEN_HEIGHT, SCREEN_WIDTH, SPEED, TILE_SIZE
+    BASE_DIR, JUMP_SPEED, OVERLAP_THRESHOLD, SCREEN_HEIGHT, SCREEN_WIDTH, SPEED, TILE_SIZE
 )
 
 class Tile(Sprite):
@@ -24,15 +26,39 @@ class Entity(Sprite):
     gravity = 2  # default gravity speed
     terminal_velocity = 5  # default terminal velocity
 
+    @property
+    def animation(self):
+        return self.animations[self.status]
+
+    @property
+    def image(self):
+        """Get current animated image based on its status"""
+        return self.animation[self.frame_idx]
+
     def __init__(self, pos: tuple):
         super().__init__()
-        # TODO: show real sprites
-        self.image = Surface(self.size)
-        self.image.fill(self.color)
+        self.steps = 0
+        self.status = 'idle'
+        self.init_animations()
         self.rect = self.image.get_rect(topleft=pos)
         self.vel_x = 0
         self.vel_y = 0
         self.in_ground = False
+
+    def init_animations(self):
+        self.frame_idx = 0
+        self.animations = defaultdict(list)
+        sprites_path = path.join(BASE_DIR, 'graphics', 'sprites', self.sprites_dir)
+        for _, _, file_names in walk(sprites_path):
+            for fname in sorted(file_names):
+                fpath = path.join(sprites_path, fname)
+                img = pygame.transform.scale(
+                    pygame.image.load(fpath).convert_alpha(),
+                    self.size,
+                )
+                name, _ = path.splitext(fname)
+                status, _ = name.split('_')
+                self.animations[status].append(img)
 
     def check_in_ground(self, level):
         rect_below = self.rect.copy()
@@ -47,7 +73,20 @@ class Entity(Sprite):
         if not self.in_ground:
             self.vel_y = min(self.vel_y + self.gravity, self.terminal_velocity)
 
+    def animate(self):
+        # heuristics to know if change the animated frame for the entity
+        self.steps = (self.steps + 1) % (SPEED * 3)
+        if self.steps == 0:
+            self.shift_frame()
+
+    def shift_frame(self):
+        max_frame_idx = len(self.animation)
+        self.frame_idx += 1
+        if self.frame_idx >= max_frame_idx:
+            self.frame_idx = 0
+
     def update(self, level):
+        self.animate()
         self.apply_gravity(level)
         self.rect.x += self.vel_x
         self.rect.y += self.vel_y
@@ -74,7 +113,7 @@ class Entity(Sprite):
 
 
 class SnowFlake(Entity):
-    color = 'white'
+    sprites_dir = 'snowflake'
     size = (10, 10)
     gravity = 1
     terminal_velocity = 2
@@ -91,6 +130,7 @@ class SnowFlake(Entity):
         return False  # never touch ground so it's always falling
 
     def update(self, level):
+        self.animate()
         self.apply_gravity(level)
         self.rect.y += self.vel_y
         if self.rect.y >= level.surface.get_height():
@@ -98,12 +138,12 @@ class SnowFlake(Entity):
 
 
 class Enemy(Entity):
-    color = 'red'
+    sprites_dir = 'enemy'
     size = (TILE_SIZE // 2, TILE_SIZE)
 
 
 class Player(Entity):
-    color = 'green'
+    sprites_dir = 'player'
     size = (TILE_SIZE // 2, TILE_SIZE)
 
     def move_left(self):

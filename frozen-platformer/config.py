@@ -1,3 +1,6 @@
+from os import path
+
+BASE_DIR = path.dirname(path.abspath(__file__))
 FPS = 60
 TILE_SIZE = 64
 SCREEN_WIDTH = TILE_SIZE * 12

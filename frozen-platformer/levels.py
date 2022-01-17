@@ -10,11 +10,11 @@ levels_layout = [
         '          E         ',
         '         XXX        ',
         '                    ',
-        'X       E           ',
         'X                   ',
-        'XX                 X',
-        'XXXX     XX      EXX',
-        'XXXX             XXX',
+        'X     XX            ',
+        'XX        E        X',
+        'XXXX     XX  X    XX',
+        'XXXXXX         XXXXX',
     ],
     [
         '                    ',
@@ -67,6 +67,7 @@ class Level:
     def update(self):
         self.player.update(self)
         self.snow_flakes.update(self)
+        self.enemies.update(self)
 
     def scroll_x(self, x):
         self.tiles.update(x)

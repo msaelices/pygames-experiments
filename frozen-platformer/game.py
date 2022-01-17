@@ -37,8 +37,9 @@ class Game:
     def loop(self):
         while not self.is_done:
             self.handle_events()
-            self.update()
-            self.draw()
+            if not self.is_paused:
+                self.update()
+                self.draw()
             self.clock.tick(FPS)
         pygame.quit()
 

@@ -49,14 +49,15 @@ class Game:
             elif event.type == pygame.KEYDOWN:
                 if event.key == PAUSE:
                     self.toggle_pause()
+                elif self.is_started and event.key == JUMP:
+                    self.level.player.jump()
+
         keys = pygame.key.get_pressed()
         if self.is_started:
             if keys[LEFT]:
                 self.level.player.move_left()
             elif keys[RIGHT]:
                 self.level.player.move_right()
-            elif keys[JUMP]:
-                self.level.player.jump()
             else:
                 self.level.player.stop()
 

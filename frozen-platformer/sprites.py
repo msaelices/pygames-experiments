@@ -80,8 +80,7 @@ class Entity(Sprite):
             self.shift_frame()
 
     def shift_frame(self):
-        max_frame_idx = len(self.animation)
-        self.frame_idx = (self.frame_idx + 1) % max_frame_idx
+        self.frame_idx = (self.frame_idx + 1) % len(self.animation)
 
     def update(self, level):
         self.animate()

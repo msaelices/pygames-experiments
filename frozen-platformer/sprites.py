@@ -22,9 +22,7 @@ class Tile(Sprite):
         self.rect.x += x_shift
 
 
-class Entity(Sprite):
-    gravity = 2  # default gravity speed
-    terminal_velocity = 5  # default terminal velocity
+class AnimatedSprite(Sprite):
 
     @property
     def animation(self):
@@ -37,13 +35,10 @@ class Entity(Sprite):
 
     def __init__(self, pos: tuple):
         super().__init__()
-        self.steps = 0
         self.status = 'idle'
+        self.steps = 0
         self.init_animations()
         self.rect = self.image.get_rect(topleft=pos)
-        self.vel_x = 0
-        self.vel_y = 0
-        self.in_ground = False
 
     def init_animations(self):
         self.frame_idx = 0
@@ -60,6 +55,30 @@ class Entity(Sprite):
                 status, _ = name.split('_')
                 self.animations[status].append(img)
 
+    def animate(self):
+        # heuristics to know if change the animated frame for the entity
+        self.steps = (self.steps + 1) % (SPEED * 3)
+        if self.steps == 0:
+            self.shift_frame()
+
+    def shift_frame(self):
+        self.frame_idx = (self.frame_idx + 1) % len(self.animation)
+
+    def update(self):
+        super().update()
+        self.animate()
+
+
+class Entity(AnimatedSprite):
+    gravity = 2  # default gravity speed
+    terminal_velocity = 5  # default terminal velocity
+
+    def __init__(self, pos: tuple):
+        super().__init__(pos=pos)
+        self.vel_x = 0
+        self.vel_y = 0
+        self.in_ground = False
+
     def check_in_ground(self, level):
         rect_below = self.rect.copy()
         rect_below.y += 1  # check if a rect just below the player is colliding
@@ -73,20 +92,13 @@ class Entity(Sprite):
         if not self.in_ground:
             self.vel_y = min(self.vel_y + self.gravity, self.terminal_velocity)
 
-    def animate(self):
-        # heuristics to know if change the animated frame for the entity
-        self.steps = (self.steps + 1) % (SPEED * 3)
-        if self.steps == 0:
-            self.shift_frame()
-
-    def shift_frame(self):
-        self.frame_idx = (self.frame_idx + 1) % len(self.animation)
-
     def update(self, level):
-        self.animate()
+        super().update()
+
         self.apply_gravity(level)
         self.rect.x += self.vel_x
         self.rect.y += self.vel_y
+        # make sure the player is not passing through obstacles
         tiles_hit = pygame.sprite.spritecollide(self, level.tiles, False)
         for tile in tiles_hit:
             rect = self.rect

@@ -184,8 +184,12 @@ class Player(Entity):
 
     def update(self, level):
         super().update(level)
-        self.bullets.update()  # TODO: remove out-of-screen bullets
+        self.bullets.update()
 
     def draw(self, surface: Surface):
         super().draw(surface)
         self.bullets.draw(surface)
+        screen_rect = surface.get_rect()
+        for bullet in self.bullets.sprites():
+            if bullet not in screen_rect:
+                self.bullets.remove(bullet)

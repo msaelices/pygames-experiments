@@ -5,7 +5,7 @@ from tkinter import W
 
 import pygame
 from pygame import Surface
-from pygame.sprite import Sprite
+from pygame.sprite import Sprite, Group
 
 from config import (
     BASE_DIR, JUMP_SPEED, OVERLAP_THRESHOLD, SCREEN_HEIGHT, SCREEN_WIDTH, SPEED, TILE_SIZE
@@ -163,7 +163,7 @@ class Enemy(Entity):
 class Player(Entity):
     sprites_dir = 'player'
     size = (TILE_SIZE // 2, TILE_SIZE)
-    bullets: list[Bullet] = []
+    bullets: Group = Group()
 
     def move_left(self):
         self.vel_x = -SPEED
@@ -180,14 +180,12 @@ class Player(Entity):
         self.vel_x = 0
 
     def shoot(self):
-        self.bullets.append(Bullet(pos=self.rect.center))
+        self.bullets.add(Bullet(pos=self.rect.center))
 
     def update(self, level):
         super().update(level)
-        for bullet in self.bullets:
-            bullet.update() # TODO: remove out-of-screen bullets
+        self.bullets.update()  # TODO: remove out-of-screen bullets
 
     def draw(self, surface: Surface):
         super().draw(surface)
-        for bullet in self.bullets:
-            bullet.draw(surface)
+        self.bullets.draw(surface)

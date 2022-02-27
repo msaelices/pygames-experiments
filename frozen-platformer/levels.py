@@ -1,3 +1,4 @@
+from tkinter import W
 import pygame
 
 from config import TILE_SIZE
@@ -34,6 +35,7 @@ levels_layout = [
 class Level:
 
     def __init__(self, number: int, surface: pygame.Surface):
+        self.offset = 0
         self.surface = surface
         level_layout = levels_layout[number]
         self.setup(level_layout)
@@ -58,17 +60,29 @@ class Level:
         for _ in range(20):
             self.snow_flakes.add(SnowFlake())
 
+    def get_all_sprites(self):
+        yield self.player
+        yield from self.tiles.sprites()
+        yield from self.enemies.sprites()
+        yield from self.snow_flakes.sprites()
+
     def draw(self):
-        self.player.draw(self.surface)
-        self.tiles.draw(self.surface)
-        self.enemies.draw(self.surface)
-        self.snow_flakes.draw(self.surface)
+        for sprite in self.get_all_sprites():
+            sprite.draw(self.surface, self.offset)
 
     def update(self):
         self.player.update(self)
         self.snow_flakes.update(self)
         self.enemies.update(self)
+        # Move camera offset according to the player position
+        min_offset, max_offset = 100, 400
+        player_posx = self.player.rect.centerx
+        player_offset = abs(player_posx - self.offset)
+        # print(f'Player X: {player_posx} Offset: {self.offset} Player offset: {player_offset}')
+        if player_offset > max_offset or player_offset < min_offset:
+            offset_vel = 5 if player_offset > max_offset else -5
+            self.offset += offset_vel
+        self.offset = max(self.offset, 0)
 
     def scroll_x(self, x):
         self.tiles.update(x)
-

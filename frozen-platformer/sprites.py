@@ -11,7 +11,16 @@ from config import (
     BASE_DIR, JUMP_SPEED, OVERLAP_THRESHOLD, SCREEN_HEIGHT, SCREEN_WIDTH, SPEED, TILE_SIZE
 )
 
-class Tile(Sprite):
+
+class BaseSprite(Sprite):
+
+    def draw(self, surface: Surface, offset: int = 0):
+        rect = self.rect.copy()
+        rect.x -= offset
+        surface.blit(self.image, rect)
+
+
+class Tile(BaseSprite):
 
     def __init__(self, size: int, pos: tuple):
         super().__init__()
@@ -23,7 +32,7 @@ class Tile(Sprite):
         self.rect.x += x_shift
 
 
-class AnimatedSprite(Sprite):
+class AnimatedSprite(BaseSprite):
 
     @property
     def animation(self):
@@ -68,9 +77,6 @@ class AnimatedSprite(Sprite):
     def update(self):
         super().update()
         self.animate()
-
-    def draw(self, surface: Surface):
-        surface.blit(self.image, self.rect)
 
 
 class Entity(AnimatedSprite):
@@ -186,10 +192,11 @@ class Player(Entity):
         super().update(level)
         self.bullets.update()
 
-    def draw(self, surface: Surface):
-        super().draw(surface)
-        self.bullets.draw(surface)
+    def draw(self, surface: Surface, offset: int = 0):
+        super().draw(surface, offset)
         screen_rect = surface.get_rect()
         for bullet in self.bullets.sprites():
-            if bullet not in screen_rect:
+            if bullet in screen_rect:
+                bullet.draw(surface, offset)
+            else:
                 self.bullets.remove(bullet)

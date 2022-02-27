@@ -7,7 +7,7 @@ from levels import Level
 PAUSE = pygame.K_p
 LEFT = pygame.K_LEFT
 RIGHT = pygame.K_RIGHT
-JUMP = pygame.K_SPACE
+JUMP = pygame.K_UP
 
 class Game:
     IDLE = 0

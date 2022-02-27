@@ -8,6 +8,8 @@ PAUSE = pygame.K_p
 LEFT = pygame.K_LEFT
 RIGHT = pygame.K_RIGHT
 JUMP = pygame.K_UP
+SHOOT = pygame.K_SPACE
+
 
 class Game:
     IDLE = 0
@@ -50,8 +52,11 @@ class Game:
             elif event.type == pygame.KEYDOWN:
                 if event.key == PAUSE:
                     self.toggle_pause()
-                elif self.is_started and event.key == JUMP:
-                    self.level.player.jump()
+                elif self.is_started:
+                    if event.key == JUMP:
+                        self.level.player.jump()
+                    elif event.key == SHOOT:
+                        self.level.player.shoot()
 
         keys = pygame.key.get_pressed()
         if self.is_started:

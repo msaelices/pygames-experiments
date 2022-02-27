@@ -1,6 +1,7 @@
 from collections import defaultdict
 from os import path, walk
 from random import randint
+from tkinter import W
 
 import pygame
 from pygame import Surface
@@ -68,6 +69,9 @@ class AnimatedSprite(Sprite):
         super().update()
         self.animate()
 
+    def draw(self, surface: Surface):
+        surface.blit(self.image, self.rect)
+
 
 class Entity(AnimatedSprite):
     gravity = 2  # default gravity speed
@@ -117,9 +121,6 @@ class Entity(AnimatedSprite):
                 self.rect.top = t_rect.bottom
                 self.vel_y = 0
 
-    def draw(self, surface: Surface):
-        surface.blit(self.image, self.rect)
-
 
 class SnowFlake(Entity):
     sprites_dir = 'snowflake'
@@ -146,6 +147,14 @@ class SnowFlake(Entity):
             self.rect.topleft = self.get_random_pos()
 
 
+class Bullet(AnimatedSprite):
+    sprites_dir = 'snowflake'
+    size = (10, 10)
+    velocity = 4
+
+    def update(self):
+        self.rect.x += self.velocity
+
 class Enemy(Entity):
     sprites_dir = 'enemy'
     size = (TILE_SIZE // 2, TILE_SIZE)
@@ -154,6 +163,7 @@ class Enemy(Entity):
 class Player(Entity):
     sprites_dir = 'player'
     size = (TILE_SIZE // 2, TILE_SIZE)
+    bullets: list[Bullet] = []
 
     def move_left(self):
         self.vel_x = -SPEED
@@ -168,3 +178,16 @@ class Player(Entity):
 
     def stop(self):
         self.vel_x = 0
+
+    def shoot(self):
+        self.bullets.append(Bullet(pos=self.rect.center))
+
+    def update(self, level):
+        super().update(level)
+        for bullet in self.bullets:
+            bullet.update() # TODO: remove out-of-screen bullets
+
+    def draw(self, surface: Surface):
+        super().draw(surface)
+        for bullet in self.bullets:
+            bullet.draw(surface)

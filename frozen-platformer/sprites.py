@@ -152,6 +152,12 @@ class SnowFlake(Entity):
         if self.rect.y >= level.surface.get_height():
             self.rect.topleft = self.get_random_pos()
 
+    def draw(self, surface: Surface, offset: int = 0):
+        if self.rect.x < offset:
+            # Make sure the snowflake does not disappear from screen
+            self.rect.x += SCREEN_WIDTH
+        super().draw(surface, offset)
+
 
 class Bullet(AnimatedSprite):
     sprites_dir = 'snowflake'

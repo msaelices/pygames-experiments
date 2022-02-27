@@ -200,9 +200,10 @@ class Player(Entity):
 
     def draw(self, surface: Surface, offset: int = 0):
         super().draw(surface, offset)
-        screen_rect = surface.get_rect()
+        rect = surface.get_rect().copy()
+        rect.x += offset
         for bullet in self.bullets.sprites():
-            if bullet in screen_rect:
+            if bullet in rect:
                 bullet.draw(surface, offset)
             else:
                 self.bullets.remove(bullet)

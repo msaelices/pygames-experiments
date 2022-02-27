@@ -1,33 +1,33 @@
 from tkinter import W
 import pygame
 
-from config import TILE_SIZE
+from config import SPEED, TILE_SIZE
 from sprites import Enemy, Player, SnowFlake, Tile
 
 levels_layout = [
     [
-        '   P                ',
-        '   XXXX         XXXX',
-        '          E         ',
-        '         XXX        ',
-        '                    ',
-        'X                   ',
-        'X     XX            ',
-        'XX        E        X',
-        'XXXX     XX  X    XX',
-        'XXXXXX         XXXXX',
+        '   P                     ',
+        '   XXXX         XXXX     ',
+        '          E              ',
+        '         XXX             ',
+        '                 XXXX    ',
+        'X                        ',
+        'X     XX                 ',
+        'X  X      E        XXXX  ',
+        'X  X     XX  X    XX     ',
+        'XXXXXX         XXXXX  XXX',
     ],
     [
-        '                    ',
-        'XXXXXXX         XXXX',
-        '                    ',
-        '         XXX        ',
-        '                    ',
-        'X                   ',
-        'X                   ',
-        'XX                 X',
-        'XXXX     XX       XX',
-        'XXXX             XXX',
+        '     E                   ',
+        'XXXXXXX         XXXX   XX',
+        '                         ',
+        '         XXX             ',
+        '                  XXX    ',
+        'X                        ',
+        'X                        ',
+        'XX                 X     ',
+        'XXXX     XX       XX     ',
+        'XXXX             XXXXXXXX',
     ],
 ]
 
@@ -80,7 +80,7 @@ class Level:
         player_offset = abs(player_posx - self.offset)
         # print(f'Player X: {player_posx} Offset: {self.offset} Player offset: {player_offset}')
         if player_offset > max_offset or player_offset < min_offset:
-            offset_vel = 5 if player_offset > max_offset else -5
+            offset_vel = SPEED if player_offset > max_offset else -SPEED
             self.offset += offset_vel
         self.offset = max(self.offset, 0)
 

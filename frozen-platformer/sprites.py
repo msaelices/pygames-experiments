@@ -1,23 +1,33 @@
 from collections import defaultdict
+from enum import Enum
 from os import path, walk
 from random import randint
 from tkinter import W
 
 import pygame
-from pygame import Surface
-from pygame.sprite import Sprite, Group
+from pygame import Rect, Surface
+from pygame.sprite import Sprite, Group, Rect
 
 from config import (
-    BASE_DIR, JUMP_SPEED, OVERLAP_THRESHOLD, SCREEN_HEIGHT, SCREEN_WIDTH, SPEED, TILE_SIZE
+    BASE_DIR, BULLET_SPEED, JUMP_SPEED, OVERLAP_THRESHOLD,
+    SCREEN_HEIGHT, SCREEN_WIDTH, SPEED, TILE_SIZE,
 )
 
+
+def _draw_sprite(image: Surface, rect: Rect, surface: Surface, offset: int = 0):
+    rect = rect.copy()
+    rect.x -= offset
+    surface.blit(image, rect)
+
+
+class Direction(Enum):
+    LEFT = 1
+    RIGHT = 2
 
 class BaseSprite(Sprite):
 
     def draw(self, surface: Surface, offset: int = 0):
-        rect = self.rect.copy()
-        rect.x -= offset
-        surface.blit(self.image, rect)
+        _draw_sprite(self.image, self.rect, surface, offset)
 
 
 class Tile(BaseSprite):
@@ -82,6 +92,7 @@ class AnimatedSprite(BaseSprite):
 class Entity(AnimatedSprite):
     gravity = 2  # default gravity speed
     terminal_velocity = 5  # default terminal velocity
+    direction: Direction = Direction.RIGHT
 
     def __init__(self, pos: tuple):
         super().__init__(pos=pos)
@@ -127,6 +138,13 @@ class Entity(AnimatedSprite):
                 self.rect.top = t_rect.bottom
                 self.vel_y = 0
 
+    def draw(self, surface: Surface, offset: int = 0):
+        image = self.image
+        if self.direction == Direction.LEFT:
+            image = pygame.transform.flip(image, True, False)
+        _draw_sprite(image, self.rect, surface, offset)
+
+
 
 class SnowFlake(Entity):
     sprites_dir = 'snowflake'
@@ -162,10 +180,18 @@ class SnowFlake(Entity):
 class Bullet(AnimatedSprite):
     sprites_dir = 'snowflake'
     size = (10, 10)
-    velocity = 4
+
+    def __init__(self, pos: tuple, direction: Direction):
+        super().__init__(pos=pos)
+        self.direction = direction
+
+    @property
+    def vel_x(self):
+        return BULLET_SPEED if self.direction == Direction.RIGHT else -BULLET_SPEED
 
     def update(self):
-        self.rect.x += self.velocity
+        self.rect.x += self.vel_x
+
 
 class Enemy(Entity):
     sprites_dir = 'enemy'
@@ -179,9 +205,11 @@ class Player(Entity):
 
     def move_left(self):
         self.vel_x = -SPEED
+        self.direction = Direction.LEFT
 
     def move_right(self):
         self.vel_x = SPEED
+        self.direction = Direction.RIGHT
 
     def jump(self):
         if self.in_ground:
@@ -192,7 +220,9 @@ class Player(Entity):
         self.vel_x = 0
 
     def shoot(self):
-        self.bullets.add(Bullet(pos=self.rect.center))
+        self.bullets.add(
+            Bullet(pos=self.rect.center, direction=self.direction)
+        )
 
     def update(self, level):
         super().update(level)
@@ -200,6 +230,7 @@ class Player(Entity):
 
     def draw(self, surface: Surface, offset: int = 0):
         super().draw(surface, offset)
+
         rect = surface.get_rect().copy()
         rect.x += offset
         for bullet in self.bullets.sprites():

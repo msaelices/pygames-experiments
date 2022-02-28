@@ -1,4 +1,3 @@
-from levels import Level
 from game import Game
 
 

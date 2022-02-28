@@ -1,4 +1,3 @@
-from tkinter import W
 import pygame
 
 from config import SPEED, TILE_SIZE
@@ -78,7 +77,6 @@ class Level:
         min_offset, max_offset = 100, 400
         player_posx = self.player.rect.centerx
         player_offset = abs(player_posx - self.offset)
-        # print(f'Player X: {player_posx} Offset: {self.offset} Player offset: {player_offset}')
         if player_offset > max_offset or player_offset < min_offset:
             offset_vel = SPEED if player_offset > max_offset else -SPEED
             self.offset += offset_vel

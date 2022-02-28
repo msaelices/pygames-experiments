@@ -2,11 +2,10 @@ from collections import defaultdict
 from enum import Enum
 from os import path, walk
 from random import randint
-from tkinter import W
 
 import pygame
 from pygame import Rect, Surface
-from pygame.sprite import Sprite, Group, Rect
+from pygame.sprite import Sprite, Group
 
 from config import (
     BASE_DIR, BULLET_SPEED, JUMP_SPEED, OVERLAP_THRESHOLD,
@@ -23,6 +22,7 @@ def _draw_sprite(image: Surface, rect: Rect, surface: Surface, offset: int = 0):
 class Direction(Enum):
     LEFT = 1
     RIGHT = 2
+
 
 class BaseSprite(Sprite):
 
@@ -63,7 +63,9 @@ class AnimatedSprite(BaseSprite):
     def init_animations(self):
         self.frame_idx = 0
         self.animations = defaultdict(list)
-        sprites_path = path.join(BASE_DIR, 'graphics', 'sprites', self.sprites_dir)
+        sprites_path = path.join(
+            BASE_DIR, 'graphics', 'sprites', self.sprites_dir,
+        )
         for _, _, file_names in walk(sprites_path):
             for fname in sorted(file_names):
                 fpath = path.join(sprites_path, fname)
@@ -143,7 +145,6 @@ class Entity(AnimatedSprite):
         if self.direction == Direction.LEFT:
             image = pygame.transform.flip(image, True, False)
         _draw_sprite(image, self.rect, surface, offset)
-
 
 
 class SnowFlake(Entity):

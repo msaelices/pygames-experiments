@@ -2,10 +2,12 @@ from collections import defaultdict
 from enum import Enum
 from os import path, walk
 from random import randint
+from typing import Any, cast
 
 import pygame
-from pygame import Rect, Surface
+from pygame.rect import Rect
 from pygame.sprite import Sprite, Group
+from pygame.surface import Surface
 
 from config import (
     BASE_DIR, BULLET_SPEED, JUMP_SPEED, OVERLAP_THRESHOLD,
@@ -13,10 +15,11 @@ from config import (
 )
 
 
-def _draw_sprite(image: Surface, rect: Rect, surface: Surface, offset: int = 0):
-    rect = rect.copy()
-    rect.x -= offset
-    surface.blit(image, rect)
+def _draw_sprite(image: Surface | None, rect: Rect | None, surface: Surface | None, offset: int = 0):
+    if image and surface and rect:
+        rect = rect.copy()
+        rect.x -= offset
+        surface.blit(image, rect)
 
 
 class Direction(Enum):
@@ -38,8 +41,10 @@ class Tile(BaseSprite):
         self.image.fill('grey')
         self.rect = self.image.get_rect(topleft=pos)
 
-    def update(self, x_shift: int):
-        self.rect.x += x_shift
+    def update(self, *args: Any, **kwargs: Any):
+        x_shift = kwargs.pop('x_shift', None)
+        if self.rect:
+            self.rect.x += x_shift
 
 
 class AnimatedSprite(BaseSprite):
@@ -172,7 +177,7 @@ class SnowFlake(Entity):
             self.rect.topleft = self.get_random_pos()
 
     def draw(self, surface: Surface, offset: int = 0):
-        if self.rect.x < offset:
+        if self.rect and self.rect.x < offset:
             # Make sure the snowflake does not disappear from screen
             self.rect.x += SCREEN_WIDTH
         super().draw(surface, offset)
@@ -225,7 +230,8 @@ class Player(Entity):
             Bullet(pos=self.rect.center, direction=self.direction)
         )
 
-    def update(self, level):
+    def update(self, *args: Any, **kwargs: Any):
+        level = kwargs.pop('level')
         super().update(level)
         self.bullets.update()
 
@@ -235,7 +241,7 @@ class Player(Entity):
         rect = surface.get_rect().copy()
         rect.x += offset
         for bullet in self.bullets.sprites():
-            if bullet in rect:
-                bullet.draw(surface, offset)
+            if bullet.rect and bullet.rect in rect:
+                cast(Bullet, bullet).draw(surface, offset=offset)
             else:
                 self.bullets.remove(bullet)

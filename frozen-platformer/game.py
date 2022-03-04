@@ -18,25 +18,25 @@ class Game:
     GAME_OVER = 3
 
     @property
-    def is_done(self):
+    def is_done(self) -> bool:
         return self.status == self.GAME_OVER
 
     @property
-    def is_started(self):
+    def is_started(self) -> bool:
         return self.status == self.STARTED
 
     @property
-    def is_paused(self):
+    def is_paused(self) -> bool:
         return self.status == self.PAUSED
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.level = Level(0, self.screen)
         self.clock = pygame.time.Clock()
         self.done = False
         self.status = self.STARTED
 
-    def loop(self):
+    def loop(self) -> None:
         while not self.is_done:
             self.handle_events()
             if not self.is_paused:
@@ -45,7 +45,7 @@ class Game:
             self.clock.tick(FPS)
         pygame.quit()
 
-    def handle_events(self):
+    def handle_events(self) -> None:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.status = self.GAME_OVER
@@ -67,13 +67,13 @@ class Game:
             else:
                 self.level.player.stop()
 
-    def toggle_pause(self):
+    def toggle_pause(self) -> None:
         self.status = self.STARTED if self.is_paused else self.PAUSED
 
-    def update(self):
+    def update(self) -> None:
         self.level.update()
 
-    def draw(self):
+    def draw(self) -> None:
         self.screen.fill('black')
         self.level.draw()
         pygame.display.update()

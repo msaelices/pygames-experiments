@@ -12,7 +12,7 @@ from pygame.sprite import Sprite, Group
 from pygame.surface import Surface
 
 from config import (
-    BASE_DIR, BULLET_SPEED, JUMP_SPEED, OVERLAP_THRESHOLD,
+    BASE_DIR, BULLET_SPEED, ENEMY_SPEED, JUMP_SPEED, OVERLAP_THRESHOLD,
     SCREEN_HEIGHT, SCREEN_WIDTH, SPEED, TILE_SIZE,
 )
 
@@ -175,7 +175,7 @@ class SnowFlake(Entity):
     def __init__(self) -> None:
         super().__init__(self.get_random_pos(initial=True))
 
-    def get_random_pos(self, initial: bool=False) -> tuple[int, int]:
+    def get_random_pos(self, initial: bool = False) -> tuple[int, int]:
         x = randint(0, SCREEN_WIDTH - 1)
         y = randint(0, SCREEN_HEIGHT - 1) if initial else 0
         return (x, y)
@@ -219,6 +219,19 @@ class Bullet(AnimatedSprite):
 class Enemy(Entity):
     sprites_dir = 'enemy'
     size = (TILE_SIZE // 2, TILE_SIZE)
+
+    def __init__(self, pos: tuple[int, int]):
+        super().__init__(pos=pos)
+        self.vel_x = ENEMY_SPEED
+
+    def apply_gravity(self, level: Level) -> None:
+        # Overriden to just avoid falling off the ground
+        self.in_ground = self.check_in_ground(level)
+        if not self.in_ground:
+            self.vel_x = -self.vel_x
+
+    def update(self, *args: Any, **kwargs: Any) -> None:
+        super().update(*args, **kwargs)
 
 
 class Player(Entity):
